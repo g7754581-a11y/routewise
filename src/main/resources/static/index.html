@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RouteWise — Smart Bus Ticket Booking & Route Optimization</title>
+  <link rel="stylesheet" href="/css/routewise.css?v=6.0">
+  <style>
+    :root {
+      --primary: #2563EB !important;
+      --primary-hover: #1D4ED8 !important;
+      --primary-light: #EFF6FF !important;
+      --primary-border: #BFDBFE !important;
+      --primary-green: #2563EB !important;
+      --primary-green-hover: #1D4ED8 !important;
+      --primary-green-light: #EFF6FF !important;
+    }
+
+    /* Global image safety reset */
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    /* Homepage Specific Visuals & Strict Alignment */
+    .hero-banner-container {
+      position: relative;
+      margin-top: 40px;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-color);
+      max-width: 1060px;
+      margin-left: auto;
+      margin-right: auto;
+      height: 280px;
+    }
+
+    .hero-banner-img {
+      width: 100% !important;
+      height: 280px !important;
+      max-height: 280px !important;
+      object-fit: cover !important;
+      display: block !important;
+      transition: transform 0.6s ease;
+    }
+
+    .hero-banner-container:hover .hero-banner-img {
+      transform: scale(1.02);
+    }
+
+    .hero-banner-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.65) 100%);
+      display: flex;
+      align-items: flex-end;
+      padding: 24px 32px;
+      color: #FFFFFF;
+    }
+
+    .hero-banner-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .stats-strip {
+      width: 100%;
+      padding: 32px 0;
+      border-bottom: 1px solid var(--border-color);
+      background-color: #FFFFFF;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      width: 100%;
+      text-align: center;
+      align-items: center;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* Popular Routes Grid - Strict Image Bounds & Alignment */
+    .routes-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)) !important;
+      gap: 24px !important;
+      align-items: stretch !important;
+    }
+
+    .route-card {
+      display: flex !important;
+      flex-direction: column !important;
+      border: 1px solid var(--border-color) !important;
+      border-radius: var(--radius-lg) !important;
+      background-color: var(--bg-card) !important;
+      overflow: hidden !important;
+      box-shadow: var(--shadow-xs) !important;
+      height: 100% !important;
+    }
+
+    .route-card-img-wrap {
+      position: relative !important;
+      width: 100% !important;
+      height: 190px !important;
+      min-height: 190px !important;
+      max-height: 190px !important;
+      overflow: hidden !important;
+      background-color: #E2E8F0 !important;
+      flex-shrink: 0 !important;
+    }
+
+    .route-card-img {
+      width: 100% !important;
+      height: 100% !important;
+      max-height: 190px !important;
+      object-fit: cover !important;
+      object-position: center !important;
+      display: block !important;
+      transition: transform 0.5s ease;
+    }
+
+    .route-card:hover .route-card-img {
+      transform: scale(1.06);
+    }
+
+    /* Fleet Cards Strict Alignment */
+    .fleet-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+      gap: 22px !important;
+      align-items: stretch !important;
+    }
+
+    .fleet-card {
+      background-color: var(--bg-card) !important;
+      border: 1px solid var(--border-color) !important;
+      border-radius: var(--radius-lg) !important;
+      overflow: hidden !important;
+      box-shadow: var(--shadow-xs) !important;
+      height: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    .fleet-card-img {
+      width: 100% !important;
+      height: 175px !important;
+      max-height: 175px !important;
+      object-fit: cover !important;
+      display: block !important;
+      flex-shrink: 0 !important;
+    }
+
+    .fleet-card-body {
+      padding: 18px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      flex: 1 !important;
+    }
+
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .testimonial-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-xs);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-border);
+    }
+
+    .testimonial-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .testimonial-avatar {
+      width: 44px !important;
+      height: 44px !important;
+      border-radius: 50% !important;
+      object-fit: cover !important;
+      display: block !important;
+      border: 2px solid var(--border-color) !important;
+      flex-shrink: 0 !important;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .hero-banner-container, .hero-banner-img {
+        height: 200px !important;
+      }
+      .routes-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container">
+      <a href="/" class="navbar-brand">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="15" rx="3"></rect>
+          <path d="M4 11h16"></path>
+          <circle cx="7.5" cy="15.5" r="1.5"></circle>
+          <circle cx="16.5" cy="15.5" r="1.5"></circle>
+        </svg>
+        <span>RouteWise</span>
+      </a>
+
+      <nav>
+        <ul class="navbar-nav">
+          <li><a href="/" class="nav-link active">Home</a></li>
+          <li><a href="/search?from=Delhi&to=Chandigarh" class="nav-link">Book Tickets</a></li>
+          <li><a href="/routes" class="nav-link">Route Explorer</a></li>
+          <li><a href="/pnr-status" class="nav-link">Check PNR</a></li>
+          <li><a href="/passenger/dashboard" class="nav-link">My Bookings</a></li>
+        </ul>
+      </nav>
+
+      <div id="navUserSlot" class="nav-user"></div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-content anim-slide-up">
+        <div class="hero-tag">
+          <span class="pulse-dot"></span>
+          Smart Journeys. Minimal Bookings.
+        </div>
+        <h1 class="hero-title">Experience Premium Travel with <span>RouteWise</span></h1>
+        <p class="hero-subtitle">
+          Discover optimal highway express routes, real-time seat availability, and book verified luxury Volvo & Scania coaches across North India.
+        </p>
+      </div>
+
+      <!-- Search Box Card -->
+      <div class="search-widget anim-slide-up">
+        <form id="heroSearchForm" onsubmit="handleHeroSearch(event)">
+          <div class="search-grid">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">From City</label>
+              <select id="searchFrom" class="form-control" required>
+                <option value="">Loading cities...</option>
+              </select>
+            </div>
+
+            <button type="button" class="btn-swap" onclick="swapCities()" title="Swap Departure and Destination">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="7 16 3 12 7 8"></polyline>
+                <line x1="21" y1="12" x2="3" y2="12"></line>
+                <polyline points="17 8 21 12 17 16"></polyline>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+              </svg>
+            </button>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">To City</label>
+              <select id="searchTo" class="form-control" required>
+                <option value="">Loading cities...</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Journey Date</label>
+              <input type="date" id="searchDate" class="form-control" required>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Passengers</label>
+              <select id="searchPassengers" class="form-control">
+                <option value="1">1 Passenger</option>
+                <option value="2">2 Passengers</option>
+                <option value="3">3 Passengers</option>
+                <option value="4">4 Passengers</option>
+                <option value="5">5 Passengers</option>
+              </select>
+            </div>
+
+            <div>
+              <button type="submit" class="btn btn-primary" style="height: 44px; padding: 0 24px; width: 100%;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Search Buses
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Corridor Shortcuts -->
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-color); flex-wrap: wrap;">
+            <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em;">Popular:</span>
+            <button type="button" class="badge badge-sage" style="cursor: pointer; font-size: 0.82rem; padding: 5px 12px;" onclick="quickFillRoute('Delhi', 'Manali')">Delhi → Manali (₹950)</button>
+            <button type="button" class="badge badge-sage" style="cursor: pointer; font-size: 0.82rem; padding: 5px 12px;" onclick="quickFillRoute('Chandigarh', 'Shimla')">Chandigarh → Shimla (₹480)</button>
+            <button type="button" class="badge badge-sage" style="cursor: pointer; font-size: 0.82rem; padding: 5px 12px;" onclick="quickFillRoute('Delhi', 'Chandigarh')">Delhi → Chandigarh (₹650)</button>
+            <button type="button" class="badge badge-sage" style="cursor: pointer; font-size: 0.82rem; padding: 5px 12px;" onclick="quickFillRoute('Delhi', 'Jaipur')">Delhi → Jaipur (₹550)</button>
+            <button type="button" class="badge badge-sage" style="cursor: pointer; font-size: 0.82rem; padding: 5px 12px;" onclick="quickFillRoute('Chandigarh', 'Amritsar')">Chandigarh → Amritsar (₹500)</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Real Visual Showcase Banner -->
+      <div class="hero-banner-container anim-slide-up">
+        <img src="/images/hero-bus.jpg" alt="RouteWise Luxury Highway Coach" class="hero-banner-img" style="width: 100%; height: 280px; object-fit: cover; display: block;">
+        <div class="hero-banner-overlay">
+          <div>
+            <span class="hero-banner-badge">
+              <span class="pulse-dot"></span> Next-Gen Intercity Transit
+            </span>
+            <div style="font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em;">
+              Highway Express Corridors Across North India
+            </div>
+            <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 4px;">
+              Live tracking • Sanitized luxury berths • Ergonomic reclining seats • High-speed onboard WiFi
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Stats Banner -->
+  <section class="stats-strip">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-num">99.4%</div>
+          <div class="stat-label">On-Time Departure</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">10+</div>
+          <div class="stat-label">Key Northern Hubs</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">4.8 ★</div>
+          <div class="stat-label">Passenger Satisfaction</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">0%</div>
+          <div class="stat-label">Double Booking Risk</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Popular Routes with Real Destination Photography -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="badge badge-primary" style="margin-bottom: 8px;">Top Travel Destinations</span>
+        <h2 class="section-title">Popular Express Routes</h2>
+        <p class="section-subtitle">Real-time fares, frequent daily departures, and direct highway corridors connecting major cities.</p>
+      </div>
+
+      <div class="routes-grid">
+        <!-- Route 1: Delhi to Chandigarh -->
+        <div class="route-card">
+          <div class="route-card-img-wrap" style="height: 190px; overflow: hidden; position: relative;">
+            <img src="/images/chandigarh.jpg" alt="Chandigarh City" class="route-card-img" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            <span class="route-card-badge">⏱ 4h 30m</span>
+          </div>
+          <div class="route-card-body">
+            <div>
+              <div class="route-header">
+                <span class="route-cities">Delhi → Chandigarh</span>
+                <span class="badge badge-green">Daily 6 Runs</span>
+              </div>
+              <div class="route-meta">
+                <span>📍 245 km</span>
+                <span>•</span>
+                <span>Volvo 9600 Multi-Axle</span>
+              </div>
+            </div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹650</div>
+              </div>
+              <a href="/search?from=Delhi&to=Chandigarh" class="btn btn-primary btn-sm">Select Seats →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Route 2: Chandigarh to Shimla -->
+        <div class="route-card">
+          <div class="route-card-img-wrap" style="height: 190px; overflow: hidden; position: relative;">
+            <img src="/images/shimla.jpg" alt="Shimla Hills" class="route-card-img" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            <span class="route-card-badge">⏱ 3h 30m</span>
+          </div>
+          <div class="route-card-body">
+            <div>
+              <div class="route-header">
+                <span class="route-cities">Chandigarh → Shimla</span>
+                <span class="badge badge-green">Mountain Spec</span>
+              </div>
+              <div class="route-meta">
+                <span>📍 115 km</span>
+                <span>•</span>
+                <span>Himalayan Cruiser AC</span>
+              </div>
+            </div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹480</div>
+              </div>
+              <a href="/search?from=Chandigarh&to=Shimla" class="btn btn-primary btn-sm">Select Seats →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Route 3: Delhi to Jaipur -->
+        <div class="route-card">
+          <div class="route-card-img-wrap" style="height: 190px; overflow: hidden; position: relative;">
+            <img src="/images/jaipur.jpg" alt="Jaipur Palace" class="route-card-img" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            <span class="route-card-badge">⏱ 5h 10m</span>
+          </div>
+          <div class="route-card-body">
+            <div>
+              <div class="route-header">
+                <span class="route-cities">Delhi → Jaipur</span>
+                <span class="badge badge-green">Expressway</span>
+              </div>
+              <div class="route-meta">
+                <span>📍 275 km</span>
+                <span>•</span>
+                <span>Scania / BharatBenz</span>
+              </div>
+            </div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹550</div>
+              </div>
+              <a href="/search?from=Delhi&to=Jaipur" class="btn btn-primary btn-sm">Select Seats →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Route 4: Chandigarh to Manali -->
+        <div class="route-card">
+          <div class="route-card-img-wrap" style="height: 190px; overflow: hidden; position: relative;">
+            <img src="/images/manali.jpg" alt="Manali Snow Mountains" class="route-card-img" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            <span class="route-card-badge">⏱ 8h 00m</span>
+          </div>
+          <div class="route-card-body">
+            <div>
+              <div class="route-header">
+                <span class="route-cities">Chandigarh → Manali</span>
+                <span class="badge badge-peach">Overnight</span>
+              </div>
+              <div class="route-meta">
+                <span>📍 305 km</span>
+                <span>•</span>
+                <span>Volvo B11R Luxury</span>
+              </div>
+            </div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹950</div>
+              </div>
+              <a href="/search?from=Chandigarh&to=Manali" class="btn btn-primary btn-sm">Select Seats →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Route 5: Chandigarh to Amritsar -->
+        <div class="route-card">
+          <div class="route-card-img-wrap" style="height: 190px; overflow: hidden; position: relative;">
+            <img src="/images/amritsar.jpg" alt="Amritsar Golden Temple" class="route-card-img" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            <span class="route-card-badge">⏱ 4h 20m</span>
+          </div>
+          <div class="route-card-body">
+            <div>
+              <div class="route-header">
+                <span class="route-cities">Chandigarh → Amritsar</span>
+                <span class="badge badge-green">Via GT Road</span>
+              </div>
+              <div class="route-meta">
+                <span>📍 225 km</span>
+                <span>•</span>
+                <span>Executive Seater AC</span>
+              </div>
+            </div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹520</div>
+              </div>
+              <a href="/search?from=Chandigarh&to=Amritsar" class="btn btn-primary btn-sm">Select Seats →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Route 6: Delhi to Dehradun -->
+        <div class="route-card">
+          <div class="route-card-img-wrap" style="height: 190px; overflow: hidden; position: relative;">
+            <img src="/images/dehradun.jpg" alt="Dehradun Valley" class="route-card-img" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            <span class="route-card-badge">⏱ 5h 30m</span>
+          </div>
+          <div class="route-card-body">
+            <div>
+              <div class="route-header">
+                <span class="route-cities">Delhi → Dehradun</span>
+                <span class="badge badge-success">Zero Emission</span>
+              </div>
+              <div class="route-meta">
+                <span>📍 250 km</span>
+                <span>•</span>
+                <span>Electric Intercity</span>
+              </div>
+            </div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹580</div>
+              </div>
+              <a href="/search?from=Delhi&to=Dehradun" class="btn btn-primary btn-sm">Select Seats →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Luxury Fleet Showcase with Real Bus Photos -->
+  <section class="section" style="background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+    <div class="container">
+      <div class="section-header">
+        <span class="badge badge-primary" style="margin-bottom: 8px;">Premium Transit</span>
+        <h2 class="section-title">Our Verified Luxury Fleet</h2>
+        <p class="section-subtitle">Travel aboard top-tier European chassis with certified safety and luxury cabin amenities.</p>
+      </div>
+
+      <div class="fleet-grid">
+        <!-- Coach 1 -->
+        <div class="fleet-card">
+          <img src="/images/volvo.jpg" alt="Volvo 9600 Multi-Axle" class="fleet-card-img" style="width: 100%; height: 175px; object-fit: cover; display: block;">
+          <div class="fleet-card-body">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <h3 style="font-size: 1.1rem;">Volvo 9600 Multi-Axle</h3>
+              <span class="badge badge-green">40 Seats</span>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 12px;">
+              High-speed WiFi, individual AC vents, ergonomic reclining seats, USB-C ports, and complimentary water.
+            </p>
+            <div style="font-size: 0.78rem; color: var(--primary); font-weight: 600;">
+              ✨ Dual Steerable Axles • Electronically Regulated Suspension
+            </div>
+          </div>
+        </div>
+
+        <!-- Coach 2 -->
+        <div class="fleet-card">
+          <img src="/images/sleeper.jpg" alt="Luxury AC Sleeper" class="fleet-card-img" style="width: 100%; height: 175px; object-fit: cover; display: block;">
+          <div class="fleet-card-body">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <h3 style="font-size: 1.1rem;">Luxury AC Sleeper</h3>
+              <span class="badge badge-peach">30 Berths</span>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 12px;">
+              Private curtains, sanitized fleece blankets, plush pillows, LED reading lights, and charging outlets.
+            </p>
+            <div style="font-size: 0.78rem; color: var(--primary); font-weight: 600;">
+              ✨ 2x1 Spacious Berths • Soundproof Acoustic Insulation
+            </div>
+          </div>
+        </div>
+
+        <!-- Coach 3 -->
+        <div class="fleet-card">
+          <img src="/images/scania.jpg" alt="Scania Metrolink HD" class="fleet-card-img" style="width: 100%; height: 175px; object-fit: cover; display: block;">
+          <div class="fleet-card-body">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <h3 style="font-size: 1.1rem;">Scania Metrolink HD</h3>
+              <span class="badge badge-green">38 Seats</span>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 12px;">
+              Panoramic windows, extra legroom with footrests, automatic climate control, and emergency exits.
+            </p>
+            <div style="font-size: 0.78rem; color: var(--primary); font-weight: 600;">
+              ✨ Euro-6 Clean Diesel • Advanced EBS & ESP Braking
+            </div>
+          </div>
+        </div>
+
+        <!-- Coach 4 -->
+        <div class="fleet-card">
+          <img src="/images/electric.jpg" alt="Electric Intercity Cruiser" class="fleet-card-img" style="width: 100%; height: 175px; object-fit: cover; display: block;">
+          <div class="fleet-card-body">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <h3 style="font-size: 1.1rem;">Electric Intercity Cruiser</h3>
+              <span class="badge badge-success">Zero Emission</span>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 12px;">
+              Ultra quiet electric propulsion, regenerative braking, smart entertainment dashboard, and air purifier.
+            </p>
+            <div style="font-size: 0.78rem; color: var(--primary); font-weight: 600;">
+              ✨ 350 km Fast-Charge Range • Silent Cabin Experience
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Real Passenger Reviews -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="badge badge-primary" style="margin-bottom: 8px;">Customer Testimonials</span>
+        <h2 class="section-title">Loved by Thousands of Travelers</h2>
+        <p class="section-subtitle">Real feedback from daily commuters and weekend vacationers across North India.</p>
+      </div>
+
+      <div class="testimonial-grid">
+        <div class="testimonial-card">
+          <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;">
+            "Booking a trip from Delhi to Manali was seamless. Being able to choose the exact seat without any glitches, plus the instant boarding pass, made the entire journey comfortable and stress-free."
+          </p>
+          <div class="testimonial-user">
+            <img src="/images/avatar-priya.jpg" alt="Priya Mehta" class="testimonial-avatar" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; display: block;">
+            <div>
+              <div style="font-weight: 700; font-size: 0.95rem;">Priya Mehta</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Chandigarh → Manali • Verified Traveler</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;">
+            "The live seat mapping is fantastic. The Volvo coach arrived right on time at Kashmere Gate ISBT, and the seats were clean and comfortable. Definitely my go-to service for business trips."
+          </p>
+          <div class="testimonial-user">
+            <img src="/images/avatar-rohit.jpg" alt="Rohit Verma" class="testimonial-avatar" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; display: block;">
+            <div>
+              <div style="font-weight: 700; font-size: 0.95rem;">Rohit Verma</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Delhi → Jaipur • Verified Traveler</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;">
+            "I travel between Chandigarh and Amritsar almost every month. The clean minimal design of this website makes finding and booking schedules faster than any other app I've used."
+          </p>
+          <div class="testimonial-user">
+            <img src="/images/avatar-aarav.jpg" alt="Aarav Gill" class="testimonial-avatar" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; display: block;">
+            <div>
+              <div style="font-weight: 700; font-size: 0.95rem;">Aarav Gill</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Chandigarh → Amritsar • Frequent Commuter</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Route Explorer Promotion Banner -->
+  <section class="section" style="padding-top: 0;">
+    <div class="container">
+      <div class="card" style="background: linear-gradient(135deg, #FFFFFF 0%, #EFF6FF 100%); border: 1px solid var(--primary-border); padding: 48px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; box-shadow: var(--shadow-sm);">
+        <div style="max-width: 600px;">
+          <span class="badge badge-primary" style="margin-bottom: 12px;">Smart Highway Routing</span>
+          <h3 style="font-size: 1.85rem; margin-bottom: 12px;">Explore Intercity Paths & Alternate Connections</h3>
+          <p style="color: var(--text-secondary); font-size: 1rem;">
+            Not sure about the best highway link? Use our graph-powered Route Explorer to compute the shortest distance, fastest travel time, or intermediate stops between 10 intercity hubs.
+          </p>
+        </div>
+        <a href="/routes" class="btn btn-primary btn-lg">Launch Route Explorer →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-weight: 700; font-size: 1.2rem; color: var(--text-primary);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="15" rx="3"></rect>
+              <path d="M4 11h16"></path>
+              <circle cx="7.5" cy="15.5" r="1.5"></circle>
+              <circle cx="16.5" cy="15.5" r="1.5"></circle>
+            </svg>
+            RouteWise
+          </div>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; max-width: 320px;">
+            RouteWise is an intelligent intercity bus ticket booking and route optimization system built for seamless, reliable highway journeys.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Travelers</h4>
+          <ul class="footer-links">
+            <li><a href="/search?from=Delhi&to=Chandigarh" class="footer-link">Search Buses</a></li>
+            <li><a href="/pnr-status" class="footer-link">Check PNR Status</a></li>
+            <li><a href="/passenger/dashboard" class="footer-link">Manage Bookings</a></li>
+            <li><a href="/routes" class="footer-link">Network Route Map</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Operations</h4>
+          <ul class="footer-links">
+            <li><a href="/login" class="footer-link">Admin Portal</a></li>
+            <li><a href="/admin/schedules" class="footer-link">Schedule Manager</a></li>
+            <li><a href="/admin/optimizer" class="footer-link">Capacity Optimizer</a></li>
+            <li><a href="/admin/waiting-list" class="footer-link">Waitlist Operations</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Hub Cities</h4>
+          <ul class="footer-links">
+            <li><span class="footer-link">Chandigarh (CH)</span></li>
+            <li><span class="footer-link">Delhi ISBT (DEL)</span></li>
+            <li><span class="footer-link">Jaipur Sindhi Camp</span></li>
+            <li><span class="footer-link">Shimla & Manali</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        © 2026 RouteWise Inc. All rights reserved. Smart Journeys. Simpler Bookings.
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js?v=6.0"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set default date to today
+      const todayStr = new Date().toISOString().split('T')[0];
+      const dateEl = document.getElementById('searchDate');
+      if (dateEl) {
+        dateEl.value = todayStr;
+        dateEl.min = todayStr;
+      }
+
+      // Populate cities dropdowns
+      API.loadCities('searchFrom', 'searchTo').then(() => {
+        document.getElementById('searchFrom').value = 'Delhi';
+        document.getElementById('searchTo').value = 'Chandigarh';
+      });
+    });
+
+    function swapCities() {
+      const fromSel = document.getElementById('searchFrom');
+      const toSel = document.getElementById('searchTo');
+      const temp = fromSel.value;
+      fromSel.value = toSel.value;
+      toSel.value = temp;
+    }
+
+    function handleHeroSearch(e) {
+      e.preventDefault();
+      const from = document.getElementById('searchFrom').value;
+      const to = document.getElementById('searchTo').value;
+      const date = document.getElementById('searchDate').value;
+      const passengers = document.getElementById('searchPassengers').value;
+
+      if (!from || !to) {
+        API.showToast('Please select both departure and destination cities', 'error');
+        return;
+      }
+      if (from.toLowerCase() === to.toLowerCase()) {
+        API.showToast('Departure and destination cannot be identical', 'error');
+        return;
+      }
+
+      window.location.href = `/search?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${date}&passengers=${passengers}`;
+    }
+
+    function quickFillRoute(from, to) {
+      const fromSel = document.getElementById('searchFrom');
+      const toSel = document.getElementById('searchTo');
+      if (fromSel) fromSel.value = from;
+      if (toSel) toSel.value = to;
+      const date = document.getElementById('searchDate')?.value || new Date().toISOString().split('T')[0];
+      window.location.href = `/search?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${date}&passengers=1`;
+    }
+  </script>
+</body>
+</html>

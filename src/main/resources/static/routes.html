@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Route Explorer & Network Map — RouteWise</title>
+  <link rel="stylesheet" href="/css/routewise.css?v=6.0">
+  <style>
+    :root {
+      --primary: #2563EB !important;
+      --primary-hover: #1D4ED8 !important;
+      --primary-light: #EFF6FF !important;
+      --primary-border: #BFDBFE !important;
+      --primary-green: #2563EB !important;
+      --primary-green-hover: #1D4ED8 !important;
+      --primary-green-light: #EFF6FF !important;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .routes-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)) !important;
+      gap: 24px !important;
+    }
+
+    .route-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .route-card:hover {
+      border-color: var(--primary-border);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+
+    .route-card-img-wrap {
+      height: 190px !important;
+      min-height: 190px !important;
+      max-height: 190px !important;
+      overflow: hidden !important;
+      position: relative;
+      background-color: #E2E8F0;
+    }
+
+    .route-card-img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      display: block !important;
+      transition: transform 0.5s ease;
+    }
+
+    .route-card:hover .route-card-img {
+      transform: scale(1.05);
+    }
+
+    .route-duration-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .route-card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .route-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .route-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .route-meta {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .route-price-box {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .route-fare {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .network-svg-container {
+      width: 100%;
+      height: 480px;
+      background: radial-gradient(circle at 50% 50%, #FFFFFF 0%, #F8FAFC 100%);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+    .node-circle {
+      fill: #FFFFFF;
+      stroke: var(--primary);
+      stroke-width: 2.5;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .node-circle:hover, .node-circle.active {
+      fill: var(--primary);
+      stroke: #1D4ED8;
+      r: 10;
+      filter: drop-shadow(0 2px 6px rgba(37, 99, 235, 0.4));
+    }
+    .node-text {
+      font-size: 11px;
+      font-weight: 700;
+      fill: var(--text-primary);
+      pointer-events: none;
+    }
+    .edge-line {
+      stroke: #E2E8F0;
+      stroke-width: 2;
+      stroke-linecap: round;
+      transition: all 0.3s ease;
+    }
+    .edge-line.highlighted {
+      stroke: var(--primary);
+      stroke-width: 3.5;
+      stroke-dasharray: 6;
+      animation: dash 1s linear infinite;
+    }
+    @keyframes dash {
+      to { stroke-dashoffset: -12; }
+    }
+
+    .city-hubs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 36px;
+    }
+
+    .city-hub-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-xs);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .city-hub-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-border);
+    }
+
+    .city-hub-img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .city-hub-card:hover .city-hub-img {
+      transform: scale(1.06);
+    }
+
+    .city-hub-info {
+      padding: 10px 14px;
+    }
+
+    .route-preview-photos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+      margin-bottom: 14px;
+    }
+
+    .route-preview-box {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      height: 90px;
+      position: relative;
+      border: 1px solid var(--border-color);
+    }
+
+    .route-preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .route-preview-box span {
+      position: absolute;
+      bottom: 4px;
+      left: 6px;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container">
+      <a href="/" class="navbar-brand">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="15" rx="3"></rect>
+          <path d="M4 11h16"></path>
+          <circle cx="7.5" cy="15.5" r="1.5"></circle>
+          <circle cx="16.5" cy="15.5" r="1.5"></circle>
+        </svg>
+        <span>RouteWise</span>
+      </a>
+
+      <nav>
+        <ul class="navbar-nav">
+          <li><a href="/" class="nav-link">Home</a></li>
+          <li><a href="/search?from=Delhi&to=Chandigarh" class="nav-link">Book Tickets</a></li>
+          <li><a href="/routes" class="nav-link active">Route Explorer</a></li>
+          <li><a href="/pnr-status" class="nav-link">Check PNR</a></li>
+          <li><a href="/passenger/dashboard" class="nav-link">My Bookings</a></li>
+        </ul>
+      </nav>
+
+      <div id="navUserSlot" class="nav-user"></div>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 40px 0 64px;">
+    <!-- Title & Subtitle -->
+    <div style="text-align: center; max-width: 680px; margin: 0 auto 36px;" class="anim-slide-up">
+      <span class="badge badge-primary" style="margin-bottom: 8px;">
+        <span class="pulse-dot"></span> Network Route Optimizer
+      </span>
+      <h1 style="font-size: 2.2rem; margin-bottom: 12px;">Intercity Route Explorer</h1>
+      <p style="color: var(--text-secondary); font-size: 1rem;">
+        Discover optimal travel routes, analyze transit corridors, and identify the fastest highway links across our North India network.
+      </p>
+    </div>
+
+    <!-- Explorer Grid: Planner on Left, Interactive Graph on Right -->
+    <div style="display: grid; grid-template-columns: 380px 1fr; gap: 28px; margin-bottom: 32px;" class="anim-slide-up">
+
+      <!-- Planner Card -->
+      <div class="card" style="height: fit-content;">
+        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 18px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+          Find Optimal Corridor
+        </h3>
+
+        <form id="routeFinderForm" onsubmit="computeOptimalRoute(event)">
+          <div class="form-group">
+            <label class="form-label">Departure City</label>
+            <select id="routeFrom" class="form-control" required></select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Destination City</label>
+            <select id="routeTo" class="form-control" required></select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Optimization Criterion</label>
+            <select id="routeMetric" class="form-control">
+              <option value="DISTANCE">Shortest Highway Distance (km)</option>
+              <option value="DURATION">Fastest Travel Time (Minutes)</option>
+              <option value="FEWEST_TRANSFERS">Fewest Intermediate Transfers</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 6px;">
+            Calculate Optimal Route
+          </button>
+        </form>
+
+        <!-- Route Calculation Result Output -->
+        <div id="routeResultCard" style="display: none; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+          <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
+            Optimal Path Found
+          </div>
+          <div id="resPathBadges" style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 14px;">
+          </div>
+
+          <!-- Scenic Route Photos Preview -->
+          <div class="route-preview-photos">
+            <div class="route-preview-box">
+              <img id="prevFromImg" src="" alt="Origin">
+              <span id="prevFromLabel">Origin</span>
+            </div>
+            <div class="route-preview-box">
+              <img id="prevToImg" src="" alt="Destination">
+              <span id="prevToLabel">Destination</span>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; background-color: var(--bg-secondary); padding: 12px; border-radius: var(--radius-md);">
+            <div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary);">Total Distance</div>
+              <div id="resTotalDist" style="font-weight: 700; font-size: 1rem; color: var(--text-primary);">-- km</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary);">Est. Duration</div>
+              <div id="resTotalDur" style="font-weight: 700; font-size: 1rem; color: var(--text-primary);">--</div>
+            </div>
+          </div>
+
+          <a id="btnBookThisRoute" href="#" class="btn btn-primary btn-sm" style="width: 100%;">
+            Search Buses For This Route →
+          </a>
+        </div>
+      </div>
+
+      <!-- Network Map Canvas / SVG -->
+      <div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+            <span class="pulse-dot"></span> North India Highway Network Topology
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button onclick="computeMST()" class="btn btn-secondary btn-sm" title="Show Minimum Spanning Network">
+              Show Network Spine (MST)
+            </button>
+            <button onclick="resetGraphHighlight()" class="btn btn-outline btn-sm">
+              Reset View
+            </button>
+          </div>
+        </div>
+
+        <div class="network-svg-container">
+          <svg id="networkSvg" width="100%" height="100%" viewBox="0 0 750 480">
+            <!-- Rendered by JS -->
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Alternative Connections & DFS exploration -->
+    <div class="card anim-slide-up" style="margin-bottom: 40px;">
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 14px;">
+        Alternative Transit Corridors
+      </h3>
+      <div id="altRoutesContainer" style="color: var(--text-secondary); font-size: 0.9rem;">
+        Select cities above to compare alternative multi-hop routes and bypass corridors.
+      </div>
+    </div>
+
+    <!-- Connected Hubs Real Photography Showcase -->
+    <div class="anim-slide-up">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <h2 style="font-size: 1.35rem; font-weight: 800;">Connected Northern Hubs</h2>
+        <span style="font-size: 0.85rem; color: var(--text-secondary);">Click any hub to select as destination</span>
+      </div>
+
+      <div class="city-hubs-grid">
+        <div class="city-hub-card" onclick="selectQuickCity('Delhi')">
+          <img src="/images/delhi.jpg" alt="Delhi" class="city-hub-img" style="width: 100%; height: 110px; object-fit: cover; display: block;">
+          <div class="city-hub-info">
+            <div style="font-weight: 700; font-size: 0.95rem;">Delhi (DEL)</div>
+            <div style="font-size: 0.78rem; color: var(--text-secondary);">ISBT Kashmere Gate Hub</div>
+          </div>
+        </div>
+
+        <div class="city-hub-card" onclick="selectQuickCity('Chandigarh')">
+          <img src="/images/chandigarh.jpg" alt="Chandigarh" class="city-hub-img" style="width: 100%; height: 110px; object-fit: cover; display: block;">
+          <div class="city-hub-info">
+            <div style="font-weight: 700; font-size: 0.95rem;">Chandigarh (CH)</div>
+            <div style="font-size: 0.78rem; color: var(--text-secondary);">Sector 17 / 43 Terminus</div>
+          </div>
+        </div>
+
+        <div class="city-hub-card" onclick="selectQuickCity('Manali')">
+          <img src="/images/manali.jpg" alt="Manali" class="city-hub-img" style="width: 100%; height: 110px; object-fit: cover; display: block;">
+          <div class="city-hub-info">
+            <div style="font-weight: 700; font-size: 0.95rem;">Manali (MNL)</div>
+            <div style="font-size: 0.78rem; color: var(--text-secondary);">Himalayan High Altitude Hub</div>
+          </div>
+        </div>
+
+        <div class="city-hub-card" onclick="selectQuickCity('Shimla')">
+          <img src="/images/shimla.jpg" alt="Shimla" class="city-hub-img" style="width: 100%; height: 110px; object-fit: cover; display: block;">
+          <div class="city-hub-info">
+            <div style="font-weight: 700; font-size: 0.95rem;">Shimla (SHM)</div>
+            <div style="font-size: 0.78rem; color: var(--text-secondary);">ISBT Tutikandi</div>
+          </div>
+        </div>
+
+        <div class="city-hub-card" onclick="selectQuickCity('Jaipur')">
+          <img src="/images/jaipur.jpg" alt="Jaipur" class="city-hub-img" style="width: 100%; height: 110px; object-fit: cover; display: block;">
+          <div class="city-hub-info">
+            <div style="font-weight: 700; font-size: 0.95rem;">Jaipur (JAI)</div>
+            <div style="font-size: 0.78rem; color: var(--text-secondary);">Sindhi Camp Terminal</div>
+          </div>
+        </div>
+
+        <div class="city-hub-card" onclick="selectQuickCity('Amritsar')">
+          <img src="/images/amritsar.jpg" alt="Amritsar" class="city-hub-img" style="width: 100%; height: 110px; object-fit: cover; display: block;">
+          <div class="city-hub-info">
+            <div style="font-weight: 700; font-size: 0.95rem;">Amritsar (ASR)</div>
+            <div style="font-size: 0.78rem; color: var(--text-secondary);">Golden Temple City Link</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Featured Highway Express Corridors (Identical to Home page design) -->
+    <div class="anim-slide-up" style="margin-top: 48px; margin-bottom: 32px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <div>
+          <span class="badge badge-primary" style="margin-bottom: 6px;">Express Corridors</span>
+          <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin: 0;">
+            Popular North India Bus Corridors
+          </h2>
+        </div>
+        <a href="/search?from=Delhi&to=Chandigarh" class="btn btn-outline btn-sm">View All Schedules →</a>
+      </div>
+
+      <div class="routes-grid">
+        <!-- Route 1: Delhi to Chandigarh -->
+        <div class="route-card">
+          <div class="route-card-img-wrap">
+            <img src="/images/chandigarh.jpg" alt="Delhi to Chandigarh Highway" class="route-card-img">
+            <span class="route-duration-badge">⏱ 4h 30m</span>
+          </div>
+          <div class="route-card-body">
+            <div class="route-card-top">
+              <h3 class="route-title">Delhi → Chandigarh</h3>
+              <span class="badge badge-primary">Daily 6 Runs</span>
+            </div>
+            <div class="route-meta">
+              📍 245 km • Volvo 9600 Multi-Axle
+            </div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹650</div>
+              </div>
+              <a href="/search?from=Delhi&to=Chandigarh" class="btn btn-primary btn-sm">Select Seats →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Route 2: Chandigarh to Shimla -->
+        <div class="route-card">
+          <div class="route-card-img-wrap">
+            <img src="/images/shimla.jpg" alt="Chandigarh to Shimla Mountain Route" class="route-card-img">
+            <span class="route-duration-badge">⏱ 3h 30m</span>
+          </div>
+          <div class="route-card-body">
+            <div class="route-card-top">
+              <h3 class="route-title">Chandigarh → Shimla</h3>
+              <span class="badge badge-primary">Mountain Spec</span>
+            </div>
+            <div class="route-meta">
+              📍 115 km • Himalayan Cruiser AC
+            </div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹480</div>
+              </div>
+              <a href="/search?from=Chandigarh&to=Shimla" class="btn btn-primary btn-sm">Select Seats →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Route 3: Delhi to Jaipur -->
+        <div class="route-card">
+          <div class="route-card-img-wrap">
+            <img src="/images/jaipur.jpg" alt="Delhi to Jaipur Highway" class="route-card-img">
+            <span class="route-duration-badge">⏱ 5h 10m</span>
+          </div>
+          <div class="route-card-body">
+            <div class="route-card-top">
+              <h3 class="route-title">Delhi → Jaipur</h3>
+              <span class="badge badge-primary">Expressway</span>
+            </div>
+            <div class="route-meta">
+              📍 275 km • Scania / BharatBenz
+            </div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹550</div>
+              </div>
+              <a href="/search?from=Delhi&to=Jaipur" class="btn btn-primary btn-sm">Select Seats →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Route 4: Chandigarh to Manali -->
+        <div class="route-card">
+          <div class="route-card-img-wrap">
+            <img src="/images/manali.jpg" alt="Chandigarh to Manali High Altitude" class="route-card-img">
+            <span class="route-duration-badge">⏱ 8h 00m</span>
+          </div>
+          <div class="route-card-body">
+            <div class="route-card-top">
+              <h3 class="route-title">Chandigarh → Manali</h3>
+              <span class="badge badge-primary">Overnight</span>
+            </div>
+            <div class="route-meta">
+              📍 305 km • Volvo B11R Luxury
+            </div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹950</div>
+              </div>
+              <a href="/search?from=Chandigarh&to=Manali" class="btn btn-primary btn-sm">Select Seats →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Route 5: Chandigarh to Amritsar -->
+        <div class="route-card">
+          <div class="route-card-img-wrap">
+            <img src="/images/amritsar.jpg" alt="Chandigarh to Amritsar GT Road" class="route-card-img">
+            <span class="route-duration-badge">⏱ 4h 20m</span>
+          </div>
+          <div class="route-card-body">
+            <div class="route-card-top">
+              <h3 class="route-title">Chandigarh → Amritsar</h3>
+              <span class="badge badge-primary">Via GT Road</span>
+            </div>
+            <div class="route-meta">
+              📍 225 km • Executive Seater AC
+            </div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹520</div>
+              </div>
+              <a href="/search?from=Chandigarh&to=Amritsar" class="btn btn-primary btn-sm">Select Seats →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Route 6: Delhi to Dehradun -->
+        <div class="route-card">
+          <div class="route-card-img-wrap">
+            <img src="/images/dehradun.jpg" alt="Delhi to Dehradun Green Corridor" class="route-card-img">
+            <span class="route-duration-badge">⏱ 5h 30m</span>
+          </div>
+          <div class="route-card-body">
+            <div class="route-card-top">
+              <h3 class="route-title">Delhi → Dehradun</h3>
+              <span class="badge badge-primary">Zero Emission</span>
+            </div>
+            <div class="route-meta">
+              📍 250 km • Electric Intercity
+            </div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹580</div>
+              </div>
+              <a href="/search?from=Delhi&to=Dehradun" class="btn btn-primary btn-sm">Select Seats →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-bottom">
+      © 2026 RouteWise Inc. All rights reserved. Smart Journeys. Simpler Bookings.
+    </div>
+  </footer>
+
+  <script src="/js/api.js?v=6.0"></script>
+  <script>
+    const cityCoords = {
+      'manali': { x: 380, y: 50 },
+      'shimla': { x: 420, y: 130 },
+      'amritsar': { x: 140, y: 130 },
+      'ludhiana': { x: 260, y: 170 },
+      'chandigarh': { x: 380, y: 200 },
+      'ambala': { x: 410, y: 250 },
+      'dehradun': { x: 570, y: 210 },
+      'karnal': { x: 400, y: 310 },
+      'delhi': { x: 390, y: 390 },
+      'jaipur': { x: 260, y: 440 }
+    };
+
+    let topologyData = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await API.loadCities('routeFrom', 'routeTo');
+      document.getElementById('routeFrom').value = 'Delhi';
+      document.getElementById('routeTo').value = 'Shimla';
+
+      await loadTopology();
+      computeOptimalRoute();
+    });
+
+    function selectQuickCity(cityName) {
+      document.getElementById('routeTo').value = cityName;
+      computeOptimalRoute();
+    }
+
+    async function loadTopology() {
+      try {
+        const res = await fetch('/api/routes/topology');
+        if (!res.ok) throw new Error('Failed to load topology');
+        topologyData = await res.json();
+        renderSvgGraph(topologyData);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function renderSvgGraph(data, highlightedPath = []) {
+      const svg = document.getElementById('networkSvg');
+      svg.innerHTML = '';
+
+      if (!data || !data.edges) return;
+
+      const pathSet = new Set();
+      if (highlightedPath && highlightedPath.length > 1) {
+        for (let i = 0; i < highlightedPath.length - 1; i++) {
+          const u = highlightedPath[i].toLowerCase();
+          const v = highlightedPath[i + 1].toLowerCase();
+          pathSet.add(`${u}|${v}`);
+          pathSet.add(`${v}|${u}`);
+        }
+      }
+
+      // Draw Edges
+      const drawnEdges = new Set();
+      data.edges.forEach(edge => {
+        const u = edge.source.toLowerCase();
+        const v = edge.destination.toLowerCase();
+        const edgeKey = [u, v].sort().join('|');
+
+        if (drawnEdges.has(edgeKey)) return;
+        drawnEdges.add(edgeKey);
+
+        const posU = cityCoords[u];
+        const posV = cityCoords[v];
+        if (!posU || !posV) return;
+
+        const isHighlighted = pathSet.has(`${u}|${v}`);
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', posU.x);
+        line.setAttribute('y1', posU.y);
+        line.setAttribute('x2', posV.x);
+        line.setAttribute('y2', posV.y);
+        line.setAttribute('class', `edge-line ${isHighlighted ? 'highlighted' : ''}`);
+        svg.appendChild(line);
+      });
+
+      // Draw Nodes
+      Object.keys(cityCoords).forEach(cityName => {
+        const pos = cityCoords[cityName];
+        const inPath = highlightedPath.map(p => p.toLowerCase()).includes(cityName);
+
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', pos.x);
+        circle.setAttribute('cy', pos.y);
+        circle.setAttribute('r', inPath ? 8 : 6);
+        circle.setAttribute('class', `node-circle ${inPath ? 'active' : ''}`);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', pos.x + 12);
+        text.setAttribute('y', pos.y + 4);
+        text.setAttribute('class', 'node-text');
+        text.textContent = cityName.charAt(0).toUpperCase() + cityName.slice(1);
+
+        g.appendChild(circle);
+        g.appendChild(text);
+        svg.appendChild(g);
+      });
+    }
+
+    async function computeOptimalRoute(e) {
+      if (e) e.preventDefault();
+      const from = document.getElementById('routeFrom').value;
+      const to = document.getElementById('routeTo').value;
+      const metric = document.getElementById('routeMetric').value;
+
+      if (!from || !to) return;
+      if (from.toLowerCase() === to.toLowerCase()) {
+        API.showToast('Please select distinct departure and destination hubs', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/routes/explore?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&metric=${metric}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.note || 'No path found');
+
+        renderRouteResult(data, from, to);
+        renderSvgGraph(topologyData, data.path);
+
+        // Also fetch DFS alternative paths
+        fetchAlternativePaths(from, to);
+      } catch (err) {
+        API.showToast(err.message, 'error');
+      }
+    }
+
+    function renderRouteResult(res, from, to) {
+      const card = document.getElementById('routeResultCard');
+      card.style.display = 'block';
+
+      const badgesContainer = document.getElementById('resPathBadges');
+      badgesContainer.innerHTML = res.path.map((city, idx) => `
+        <span class="badge ${idx === 0 || idx === res.path.length - 1 ? 'badge-primary' : 'badge-gray'}">
+          ${city}
+        </span>
+        ${idx < res.path.length - 1 ? '<span style="color: var(--text-muted); font-size: 0.8rem;">→</span>' : ''}
+      `).join('');
+
+      document.getElementById('prevFromImg').src = API.getCityImage(from);
+      document.getElementById('prevFromLabel').innerText = from;
+      document.getElementById('prevToImg').src = API.getCityImage(to);
+      document.getElementById('prevToLabel').innerText = to;
+
+      document.getElementById('resTotalDist').innerText = `${res.totalDistanceKm} km`;
+      document.getElementById('resTotalDur').innerText = API.formatDuration(res.totalDurationMins);
+
+      document.getElementById('btnBookThisRoute').href = `/search?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+    }
+
+    async function fetchAlternativePaths(from, to) {
+      const container = document.getElementById('altRoutesContainer');
+      try {
+        const res = await fetch(`/api/routes/alternative-paths?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+        const paths = await res.json();
+        if (!paths || paths.length === 0) {
+          container.innerHTML = '<p style="color: var(--text-secondary);">Direct express corridor is the unique available route.</p>';
+          return;
+        }
+
+        container.innerHTML = paths.map((p, idx) => `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color);">
+            <div>
+              <span style="font-weight: 700; color: var(--text-primary); margin-right: 8px;">Option ${idx + 1}:</span>
+              <span>${p.path.join(' → ')}</span>
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">
+              ${p.totalDistanceKm} km • ${API.formatDuration(p.totalDurationMins)}
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = '';
+      }
+    }
+
+    async function computeMST() {
+      try {
+        const res = await fetch('/api/routes/network-mst');
+        const mstEdges = await res.json();
+        API.showToast('Displaying minimum spanning network spine connecting all 10 hubs', 'success');
+
+        const pathNodes = [];
+        mstEdges.forEach(e => {
+          pathNodes.push(e.source, e.destination);
+        });
+        renderSvgGraph({ edges: mstEdges }, pathNodes);
+      } catch (err) {
+        API.showToast('Failed to compute MST', 'error');
+      }
+    }
+
+    function resetGraphHighlight() {
+      renderSvgGraph(topologyData, []);
+    }
+  </script>
+</body>
+</html>

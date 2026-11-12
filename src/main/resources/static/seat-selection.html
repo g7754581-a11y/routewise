@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select Seats — RouteWise</title>
+  <link rel="stylesheet" href="/css/routewise.css?v=6.0">
+  <style>
+    :root {
+      --primary: #2563EB !important;
+      --primary-hover: #1D4ED8 !important;
+      --primary-light: #EFF6FF !important;
+      --primary-border: #BFDBFE !important;
+      --primary-green: #2563EB !important;
+      --primary-green-hover: #1D4ED8 !important;
+      --primary-green-light: #EFF6FF !important;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    /* Seat Selection Page Specific Styling */
+    .seat-header-banner {
+      background-color: var(--bg-main);
+      padding: 24px 0 0;
+      position: relative;
+    }
+
+    .seat-header-grid {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .seat-dest-thumb {
+      width: 120px !important;
+      height: 85px !important;
+      min-width: 120px !important;
+      max-height: 85px !important;
+      border-radius: var(--radius-md);
+      overflow: hidden !important;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      flex-shrink: 0;
+      background-color: #E2E8F0;
+      border: 1px solid var(--border-color);
+    }
+
+    .seat-dest-img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      display: block !important;
+    }
+
+    .seat-quick-filters {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .quick-filter-btn {
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: var(--radius-full);
+      background-color: var(--bg-secondary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .quick-filter-btn:hover, .quick-filter-btn.active {
+      background-color: var(--primary-light);
+      color: var(--primary);
+      border-color: var(--primary-border);
+    }
+
+    .cabin-rear {
+      text-align: center;
+      padding: 10px 0 4px;
+      margin-top: 16px;
+      border-top: 2px dashed #E2E8F0;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+      .seat-header-grid {
+        grid-template-columns: 1fr;
+      }
+      .seat-dest-thumb {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container">
+      <a href="/" class="navbar-brand">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="15" rx="3"></rect>
+          <path d="M4 11h16"></path>
+          <circle cx="7.5" cy="15.5" r="1.5"></circle>
+          <circle cx="16.5" cy="15.5" r="1.5"></circle>
+        </svg>
+        <span>RouteWise</span>
+      </a>
+
+      <nav>
+        <ul class="navbar-nav">
+          <li><a href="/" class="nav-link">Home</a></li>
+          <li><a href="/search?from=Delhi&to=Chandigarh" class="nav-link active">Book Tickets</a></li>
+          <li><a href="/routes" class="nav-link">Route Explorer</a></li>
+          <li><a href="/pnr-status" class="nav-link">Check PNR</a></li>
+          <li><a href="/passenger/dashboard" class="nav-link">My Bookings</a></li>
+        </ul>
+      </nav>
+
+      <div id="navUserSlot" class="nav-user"></div>
+    </div>
+  </header>
+
+  <!-- Journey Summary Header with Real Photo Banner -->
+  <section class="seat-header-banner">
+    <div class="container">
+      <div style="height: 180px; position: relative; border-radius: var(--radius-xl); overflow: hidden; margin-bottom: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+        <img id="headerDestImg" src="/images/manali.jpg" alt="Destination View" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0.8) 100%); padding: 22px 28px; display: flex; align-items: flex-end; justify-content: space-between; color: #FFFFFF;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+              <a href="javascript:history.back()" style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.82rem; color: #FFFFFF; background: rgba(255,255,255,0.25); backdrop-filter: blur(8px); padding: 3px 10px; border-radius: var(--radius-full);">
+                ← Back to Schedules
+              </a>
+              <span id="headerBusType" class="badge" style="background: rgba(37,99,235,0.9); color: #FFF; font-weight: 700; border: none;">Volvo Mountain Spec AC</span>
+              <span class="badge" style="background: rgba(255,255,255,0.25); color: #FFF; border: none;">
+                <span class="pulse-dot"></span> Live Cabin Allocation
+              </span>
+            </div>
+            <h1 id="headerRoute" style="font-size: 1.75rem; font-weight: 800; color: #FFFFFF; margin: 0; text-shadow: 0 2px 8px rgba(0,0,0,0.4);">
+              Chandigarh → Manali
+            </h1>
+            <div id="headerMeta" style="font-size: 0.86rem; color: rgba(255,255,255,0.9); margin-top: 4px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              📅 Loading departure details...
+            </div>
+          </div>
+
+          <div style="text-align: right; background: rgba(255,255,255,0.15); backdrop-filter: blur(12px); padding: 12px 20px; border-radius: var(--radius-lg); border: 1px solid rgba(255,255,255,0.25);">
+            <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.85); font-weight: 700;">
+              Base Fare
+            </div>
+            <div id="headerFare" style="font-size: 1.6rem; font-weight: 800; color: #FFFFFF;">
+              ₹950
+            </div>
+            <span style="font-size: 0.72rem; color: rgba(255,255,255,0.8);">per seat</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Seat Selection View -->
+  <main class="container">
+    <div class="seat-selection-container">
+
+      <!-- Left: Interactive Bus Cabin -->
+      <div class="bus-cabin-wrapper anim-slide-up">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 16px;">
+          <div style="font-size: 0.88rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary);">
+            Cabin Seating Layout
+          </div>
+          <div id="cabinTypeTag" class="badge badge-sage">2x2 Executive</div>
+        </div>
+
+        <!-- Quick filter chips -->
+        <div class="seat-quick-filters">
+          <button type="button" class="quick-filter-btn active" onclick="filterSeats('all', this)">All Seats</button>
+          <button type="button" class="quick-filter-btn" onclick="filterSeats('window', this)">Window Only (A, D)</button>
+          <button type="button" class="quick-filter-btn" onclick="filterSeats('aisle', this)">Aisle Only (B, C)</button>
+          <button type="button" class="quick-filter-btn" onclick="clearSelectedSeats()">Reset Selection</button>
+        </div>
+
+        <div class="bus-chassis">
+          <!-- Driver & Front Cabin Cockpit -->
+          <div class="bus-front-cockpit">
+            <div class="cabin-door" title="Passenger Entry Door">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                <polyline points="10 17 15 12 10 7"></polyline>
+                <line x1="15" y1="12" x2="3" y2="12"></line>
+              </svg>
+              Front Door
+            </div>
+
+            <div class="driver-seat" title="Driver Cabin (Steering Wheel)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="2.5"></circle>
+                <line x1="12" y1="2" x2="12" y2="9.5"></line>
+                <line x1="12" y1="14.5" x2="12" y2="22"></line>
+                <line x1="2" y1="12" x2="9.5" y2="12"></line>
+                <line x1="14.5" y1="12" x2="22" y2="12"></line>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Seats Grid Container -->
+          <div id="seatLayoutContainer" class="seat-rows">
+            <div style="text-align: center; padding: 48px 20px; color: var(--text-secondary);">
+              <div class="pulse-dot" style="margin-bottom: 8px;"></div>
+              <div>Configuring cabin seat map...</div>
+            </div>
+          </div>
+
+          <!-- Rear Emergency Exit -->
+          <div class="cabin-rear">
+            Emergency Exit • Rear Cabin
+          </div>
+        </div>
+
+        <!-- Seat Color Legend -->
+        <div class="seat-legend">
+          <div class="legend-item">
+            <div class="legend-swatch swatch-available"></div>
+            <span>Available</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch swatch-selected"></div>
+            <span>Selected</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch swatch-booked"></div>
+            <span>Booked</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch swatch-blocked"></div>
+            <span>Reserved</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Live Booking Summary & Passenger Details -->
+      <aside class="booking-summary-sidebar anim-slide-up">
+        <h3 class="summary-title">Booking Summary</h3>
+
+        <div style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); margin-bottom: 8px;">
+          Selected Seat(s)
+        </div>
+        <div id="selectedSeatsList" class="selected-seats-chips">
+          <span style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">Click available seats on the cabin layout</span>
+        </div>
+
+        <div class="price-breakdown">
+          <div class="price-row">
+            <span>Seat Count</span>
+            <span id="summarySeatCount" style="font-weight: 700;">0</span>
+          </div>
+          <div class="price-row">
+            <span>Base Fare</span>
+            <span id="summaryBaseFare">₹0</span>
+          </div>
+          <div class="price-row">
+            <span>GST & Service Charge (5%)</span>
+            <span id="summaryGst">₹0</span>
+          </div>
+          <div class="price-row total">
+            <span>Total Payable</span>
+            <span id="summaryTotalAmount" style="color: var(--primary);">₹0</span>
+          </div>
+        </div>
+
+        <!-- Passenger Details Form -->
+        <form id="bookingForm" onsubmit="handleProceedBooking(event)">
+          <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 14px; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between;">
+            <span>Passenger Details</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Primary Traveler</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="passName" class="form-control" placeholder="e.g. Rahul Sharma" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="passEmail" class="form-control" placeholder="ticket@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Mobile Number</label>
+            <input type="tel" id="passPhone" class="form-control" placeholder="+91 98765 43210" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="form-group">
+            <div>
+              <label class="form-label">Age</label>
+              <input type="number" id="passAge" class="form-control" min="1" max="110" value="28" required>
+            </div>
+            <div>
+              <label class="form-label">Gender</label>
+              <select id="passGender" class="form-control">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" id="btnConfirmBooking" class="btn btn-primary" style="width: 100%; margin-top: 10px; height: 46px;" disabled>
+            Proceed to Payment & Confirmation
+          </button>
+        </form>
+
+        <!-- Waitlist Alert Option if Bus Fills Up -->
+        <div id="waitlistBox" style="margin-top: 20px; display: none; padding: 14px; background-color: var(--warning-soft); border: 1px solid #FDE68A; border-radius: var(--radius-md);">
+          <div style="font-weight: 700; font-size: 0.85rem; color: #92400E; margin-bottom: 4px;">Bus at High Occupancy</div>
+          <p style="font-size: 0.8rem; color: #78350F; margin-bottom: 10px;">
+            Preferred seats taken? Join our priority waiting list to be notified instantly when seats are released.
+          </p>
+          <button type="button" onclick="openWaitlistModal()" class="btn btn-secondary btn-sm" style="width: 100%; background: #FFFFFF;">
+            Join Priority Waitlist
+          </button>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- Waitlist Modal -->
+  <div id="waitlistModal" style="display: none; position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.45); backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center;">
+    <div class="card anim-slide-up" style="width: 100%; max-width: 440px; margin: 20px;">
+      <h3 style="font-size: 1.25rem; margin-bottom: 8px;">Join Priority Waitlist</h3>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
+        Our automated priority queue automatically confirms your ticket as soon as cancellations occur.
+      </p>
+
+      <form id="waitlistForm" onsubmit="submitWaitlist(event)">
+        <div class="form-group">
+          <label class="form-label">Passenger Name</label>
+          <input type="text" id="wlName" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contact Phone</label>
+          <input type="tel" id="wlPhone" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Seats Required</label>
+          <select id="wlSeats" class="form-control">
+            <option value="1">1 Seat</option>
+            <option value="2">2 Seats</option>
+            <option value="3">3 Seats</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority Category</label>
+          <select id="wlPriority" class="form-control">
+            <option value="1">Standard Traveler (Priority 1)</option>
+            <option value="2">Senior Citizen / Medical (Priority 2)</option>
+            <option value="3">Emergency Travel (Priority 3)</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button type="button" onclick="closeWaitlistModal()" class="btn btn-secondary" style="flex: 1;">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="flex: 1;">Submit Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-bottom">
+      © 2026 RouteWise Inc. All rights reserved. Smart Journeys. Simpler Bookings.
+    </div>
+  </footer>
+
+  <script src="/js/api.js?v=6.0"></script>
+  <script>
+    let scheduleId = null;
+    let scheduleData = null;
+    let seatsList = [];
+    let selectedSeats = new Set();
+    let seatPrice = 0;
+    let currentFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(window.location.search);
+      scheduleId = params.get('scheduleId') || 1;
+
+      // Autofill logged in user info if present
+      const user = API.getUser();
+      if (user) {
+        document.getElementById('passName').value = user.name || '';
+        document.getElementById('passEmail').value = user.email || '';
+        document.getElementById('passPhone').value = user.phone || '';
+      }
+
+      await loadScheduleDetails();
+      await loadSeatsLayout();
+    });
+
+    async function loadScheduleDetails() {
+      try {
+        const res = await fetch(`/api/schedules/${scheduleId}`);
+        if (!res.ok) throw new Error('Schedule not found');
+        scheduleData = await res.json();
+
+        // Update real destination banner photo and coach photo
+        const destImg = API.getCityImage(scheduleData.destinationCity);
+        const imgEl = document.getElementById('headerDestImg');
+        if (imgEl) imgEl.src = destImg;
+
+        const busImg = API.getBusImage(scheduleData.busType, scheduleData.busName);
+        const busImgEl = document.getElementById('headerBusImg');
+        if (busImgEl) busImgEl.src = busImg;
+
+        document.getElementById('headerRoute').innerText = `${scheduleData.sourceCity} → ${scheduleData.destinationCity}`;
+        document.getElementById('headerBusType').innerText = scheduleData.busType;
+        document.getElementById('cabinTypeTag').innerText = `${scheduleData.seatLayoutType || '2x2'} Layout`;
+        document.getElementById('headerMeta').innerHTML = `
+          <span>📅 ${API.formatDate(scheduleData.departureTime)}</span>
+          <span>•</span>
+          <span>⏰ Departs ${API.formatTime(scheduleData.departureTime)}</span>
+          <span>•</span>
+          <span>🚌 ${scheduleData.busName} (${scheduleData.busNumber})</span>
+        `;
+        document.getElementById('headerFare').innerText = API.formatCurrency(scheduleData.baseFare);
+        seatPrice = scheduleData.baseFare;
+
+        if (scheduleData.availableSeats < 6) {
+          document.getElementById('waitlistBox').style.display = 'block';
+        }
+      } catch (err) {
+        API.showToast('Failed to load schedule info', 'error');
+      }
+    }
+
+    async function loadSeatsLayout() {
+      const container = document.getElementById('seatLayoutContainer');
+      try {
+        const res = await fetch(`/api/schedules/${scheduleId}/seats`);
+        if (!res.ok) throw new Error('Failed to load seats');
+        const data = await res.json();
+        
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid seat data received');
+        }
+
+        seatsList = data;
+        renderSeatsGrid(seatsList);
+      } catch (err) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 32px 16px;">
+            <p style="color: var(--danger-color); font-weight: 600; margin-bottom: 10px;">Failed to load cabin seats</p>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">${err.message}</p>
+            <button onclick="loadSeatsLayout()" class="btn btn-outline btn-sm">Retry Loading Seats</button>
+          </div>
+        `;
+      }
+    }
+
+    function filterSeats(type, btn) {
+      currentFilter = type;
+      document.querySelectorAll('.quick-filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderSeatsGrid(seatsList);
+    }
+
+    function clearSelectedSeats() {
+      selectedSeats.clear();
+      renderSeatsGrid(seatsList);
+      updateSummary();
+    }
+
+    function renderSeatsGrid(seats) {
+      const container = document.getElementById('seatLayoutContainer');
+      container.innerHTML = '';
+
+      if (!seats || seats.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">No seats registered for this coach.</div>';
+        return;
+      }
+
+      // Group seats by numeric row (e.g. 1, 2, 3...)
+      const rowsMap = new Map();
+      seats.forEach(s => {
+        const rowMatch = s.seatNumber.match(/^(\d+)/);
+        const rowNum = rowMatch ? parseInt(rowMatch[1]) : 1;
+        if (!rowsMap.has(rowNum)) rowsMap.set(rowNum, []);
+        rowsMap.get(rowNum).push(s);
+      });
+
+      const sortedRowKeys = Array.from(rowsMap.keys()).sort((a,b) => a - b);
+
+      sortedRowKeys.forEach(rowNum => {
+        const rowSeats = rowsMap.get(rowNum);
+        const seatA = rowSeats.find(s => s.seatNumber.endsWith('A'));
+        const seatB = rowSeats.find(s => s.seatNumber.endsWith('B'));
+        const seatC = rowSeats.find(s => s.seatNumber.endsWith('C'));
+        const seatD = rowSeats.find(s => s.seatNumber.endsWith('D'));
+
+        const rowEl = document.createElement('div');
+        rowEl.className = 'seat-row';
+
+        rowEl.innerHTML = `
+          <div class="seat-pair">
+            ${renderSeatButton(seatA)}
+            ${renderSeatButton(seatB)}
+          </div>
+          <div class="seat-aisle"></div>
+          <div class="seat-pair">
+            ${renderSeatButton(seatC)}
+            ${renderSeatButton(seatD)}
+          </div>
+        `;
+        container.appendChild(rowEl);
+      });
+    }
+
+    function renderSeatButton(seat) {
+      if (!seat) return '<div style="width: 48px; height: 48px;"></div>';
+
+      let stateClass = 'available';
+      if (seat.isBooked) stateClass = 'booked';
+      else if (seat.isBlocked) stateClass = 'blocked';
+      else if (selectedSeats.has(seat.seatNumber)) stateClass = 'selected';
+
+      // Quick filter dimming
+      let filterDim = '';
+      if (currentFilter === 'window' && !seat.seatNumber.endsWith('A') && !seat.seatNumber.endsWith('D')) {
+        filterDim = 'opacity: 0.35;';
+      } else if (currentFilter === 'aisle' && !seat.seatNumber.endsWith('B') && !seat.seatNumber.endsWith('C')) {
+        filterDim = 'opacity: 0.35;';
+      }
+
+      const isClickable = !seat.isBooked && !seat.isBlocked;
+      const clickAttr = isClickable ? `onclick="toggleSeatSelection('${seat.seatNumber}')"` : '';
+
+      return `
+        <div class="bus-seat ${stateClass}" style="${filterDim}" ${clickAttr} title="Seat ${seat.seatNumber} — ${stateClass.toUpperCase()} (₹${seat.price || seatPrice})">
+          <span class="seat-label">${seat.seatNumber}</span>
+        </div>
+      `;
+    }
+
+    function toggleSeatSelection(seatNum) {
+      if (selectedSeats.has(seatNum)) {
+        selectedSeats.delete(seatNum);
+      } else {
+        if (selectedSeats.size >= 6) {
+          API.showToast('You can select a maximum of 6 seats per booking', 'error');
+          return;
+        }
+        selectedSeats.add(seatNum);
+      }
+
+      renderSeatsGrid(seatsList);
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const seatCount = selectedSeats.size;
+      const chipsContainer = document.getElementById('selectedSeatsList');
+      const btnConfirm = document.getElementById('btnConfirmBooking');
+
+      if (seatCount === 0) {
+        chipsContainer.innerHTML = '<span style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">Click available seats on the cabin layout</span>';
+        document.getElementById('summarySeatCount').innerText = '0';
+        document.getElementById('summaryBaseFare').innerText = '₹0';
+        document.getElementById('summaryGst').innerText = '₹0';
+        document.getElementById('summaryTotalAmount').innerText = '₹0';
+        btnConfirm.disabled = true;
+        return;
+      }
+
+      chipsContainer.innerHTML = Array.from(selectedSeats).map(s => `
+        <span class="seat-chip">
+          Seat ${s}
+          <span class="remove-seat" onclick="toggleSeatSelection('${s}')">✕</span>
+        </span>
+      `).join('');
+
+      const baseAmount = seatCount * seatPrice;
+      const gstAmount = Math.round(baseAmount * 0.05 * 100) / 100;
+      const totalPayable = Math.round((baseAmount + gstAmount) * 100) / 100;
+
+      document.getElementById('summarySeatCount').innerText = seatCount;
+      document.getElementById('summaryBaseFare').innerText = API.formatCurrency(baseAmount);
+      document.getElementById('summaryGst').innerText = API.formatCurrency(gstAmount);
+      document.getElementById('summaryTotalAmount').innerText = API.formatCurrency(totalPayable);
+
+      btnConfirm.disabled = false;
+    }
+
+    async function handleProceedBooking(e) {
+      e.preventDefault();
+      if (selectedSeats.size === 0) {
+        API.showToast('Please select at least one seat', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btnConfirmBooking');
+      btn.disabled = true;
+      btn.innerText = 'Securing Seats & Confirming...';
+
+      const payload = {
+        scheduleId: scheduleId,
+        seatNumbers: Array.from(selectedSeats),
+        passengerName: document.getElementById('passName').value,
+        passengerEmail: document.getElementById('passEmail').value,
+        passengerPhone: document.getElementById('passPhone').value,
+        passengerAge: parseInt(document.getElementById('passAge').value),
+        passengerGender: document.getElementById('passGender').value
+      };
+
+      try {
+        const res = await fetch('/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to complete booking');
+        }
+
+        API.showToast('Booking Confirmed! Generating your ticket...', 'success');
+        setTimeout(() => {
+          window.location.href = `/booking-confirmation?pnr=${data.pnr}`;
+        }, 500);
+      } catch (err) {
+        API.showToast(err.message, 'error');
+        btn.disabled = false;
+        btn.innerText = 'Proceed to Payment & Confirmation';
+        loadSeatsLayout();
+      }
+    }
+
+    function openWaitlistModal() {
+      document.getElementById('waitlistModal').style.display = 'flex';
+      const user = API.getUser();
+      if (user) {
+        document.getElementById('wlName').value = user.name || '';
+        document.getElementById('wlPhone').value = user.phone || '';
+      }
+    }
+
+    function closeWaitlistModal() {
+      document.getElementById('waitlistModal').style.display = 'none';
+    }
+
+    async function submitWaitlist(e) {
+      e.preventDefault();
+      const payload = {
+        scheduleId: scheduleId,
+        passengerName: document.getElementById('wlName').value,
+        contact: document.getElementById('wlPhone').value,
+        seatsRequested: parseInt(document.getElementById('wlSeats').value),
+        priorityLevel: parseInt(document.getElementById('wlPriority').value)
+      };
+
+      try {
+        const res = await fetch('/api/waiting-list', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('Waitlist submission failed');
+        closeWaitlistModal();
+        API.showToast('Added to priority waiting list successfully!', 'success');
+      } catch (err) {
+        API.showToast(err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

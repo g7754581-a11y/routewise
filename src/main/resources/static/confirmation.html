@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmed — RouteWise</title>
+  <link rel="stylesheet" href="/css/routewise.css?v=6.0">
+  <style>
+    :root {
+      --primary: #2563EB !important;
+      --primary-hover: #1D4ED8 !important;
+      --primary-light: #EFF6FF !important;
+      --primary-border: #BFDBFE !important;
+      --primary-green: #2563EB !important;
+      --primary-green-hover: #1D4ED8 !important;
+      --primary-green-light: #EFF6FF !important;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .confirmed-header {
+      text-align: center;
+      margin-top: 40px;
+      margin-bottom: 24px;
+    }
+
+    .success-icon-badge {
+      width: 58px;
+      height: 58px;
+      border-radius: var(--radius-full);
+      background-color: var(--success-soft);
+      color: var(--success-color);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);
+    }
+
+    .ticket-visual-banner {
+      width: 100% !important;
+      height: 140px !important;
+      max-height: 140px !important;
+      object-fit: cover !important;
+      display: block !important;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .ticket-perforated {
+      position: relative;
+      background: var(--bg-card);
+    }
+
+    .ticket-perforated::before, .ticket-perforated::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: var(--bg-main);
+      transform: translateY(-50%);
+      z-index: 2;
+    }
+
+    .ticket-perforated::before { left: -10px; border-right: 1px solid var(--border-color); }
+    .ticket-perforated::after { right: -10px; border-left: 1px solid var(--border-color); }
+
+    .qr-svg {
+      width: 80px;
+      height: 80px;
+      background: #FFFFFF;
+      padding: 6px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container">
+      <a href="/" class="navbar-brand">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="15" rx="3"></rect>
+          <path d="M4 11h16"></path>
+          <circle cx="7.5" cy="15.5" r="1.5"></circle>
+          <circle cx="16.5" cy="15.5" r="1.5"></circle>
+        </svg>
+        <span>RouteWise</span>
+      </a>
+
+      <nav>
+        <ul class="navbar-nav">
+          <li><a href="/" class="nav-link">Home</a></li>
+          <li><a href="/search?from=Delhi&to=Chandigarh" class="nav-link">Book Tickets</a></li>
+          <li><a href="/routes" class="nav-link">Route Explorer</a></li>
+          <li><a href="/pnr-status" class="nav-link">Check PNR</a></li>
+          <li><a href="/passenger/dashboard" class="nav-link">My Bookings</a></li>
+        </ul>
+      </nav>
+
+      <div id="navUserSlot" class="nav-user"></div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    <div class="confirmed-header anim-slide-up">
+      <div class="success-icon-badge">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h1 style="font-size: 2.1rem; font-weight: 800; margin-bottom: 6px;">Reservation Confirmed!</h1>
+      <p style="color: var(--text-secondary); font-size: 1rem;">
+        Your digital e-ticket and boarding pass have been verified and issued.
+      </p>
+    </div>
+
+    <!-- Ticket Card -->
+    <div class="ticket-wrapper ticket-perforated anim-slide-up" id="ticketCard">
+      <!-- Destination Photo Header Banner -->
+      <img id="tktDestImg" src="/images/manali.jpg" alt="Scenic Destination" class="ticket-visual-banner">
+
+      <div class="ticket-header">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.15rem;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect x="3" y="4" width="18" height="15" rx="3"></rect>
+              <path d="M4 11h16"></path>
+              <circle cx="7.5" cy="15.5" r="1.5"></circle>
+              <circle cx="16.5" cy="15.5" r="1.5"></circle>
+            </svg>
+            <span>RouteWise Boarding Pass</span>
+          </div>
+          <div style="font-size: 0.85rem; opacity: 0.92; margin-top: 4px;" id="tktBusName">
+            Volvo AC Multi-Axle
+          </div>
+        </div>
+
+        <div style="text-align: right;">
+          <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.85;">PNR Code</div>
+          <div id="tktPnr" style="font-size: 1.5rem; font-weight: 800; letter-spacing: 0.08em; font-family: monospace;">RW-XXXXXX</div>
+        </div>
+      </div>
+
+      <div class="ticket-body">
+        <div class="ticket-grid">
+          <div>
+            <div class="ticket-field-label">Departure</div>
+            <div id="tktFrom" class="ticket-field-val">Delhi ISBT</div>
+            <div id="tktDepTime" style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 3px;">--:--</div>
+          </div>
+
+          <div>
+            <div class="ticket-field-label">Arrival</div>
+            <div id="tktTo" class="ticket-field-val">Chandigarh ISBT</div>
+            <div id="tktArrTime" style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 3px;">--:--</div>
+          </div>
+
+          <div>
+            <div class="ticket-field-label">Journey Date</div>
+            <div id="tktDate" class="ticket-field-val">-- --- ----</div>
+          </div>
+
+          <div>
+            <div class="ticket-field-label">Reserved Seat(s)</div>
+            <div id="tktSeats" class="ticket-field-val" style="color: var(--primary);">--</div>
+          </div>
+
+          <div>
+            <div class="ticket-field-label">Primary Passenger</div>
+            <div id="tktPassenger" class="ticket-field-val">--</div>
+            <div id="tktContact" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 3px;">--</div>
+          </div>
+
+          <div>
+            <div class="ticket-field-label">Total Amount Paid</div>
+            <div id="tktAmount" class="ticket-field-val">₹0</div>
+            <span class="badge badge-success" style="margin-top: 5px;">PAID • CONFIRMED</span>
+          </div>
+        </div>
+
+        <!-- Scannable Barcode & QR Box -->
+        <div class="ticket-barcode-box">
+          <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 12px; flex-wrap: wrap; justify-content: center;">
+            <svg class="qr-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="5" y="5" width="30" height="30" stroke="#0F172A" stroke-width="4" fill="none"/>
+              <rect x="12" y="12" width="16" height="16" fill="#0F172A"/>
+              <rect x="65" y="5" width="30" height="30" stroke="#0F172A" stroke-width="4" fill="none"/>
+              <rect x="72" y="12" width="16" height="16" fill="#0F172A"/>
+              <rect x="5" y="65" width="30" height="30" stroke="#0F172A" stroke-width="4" fill="none"/>
+              <rect x="12" y="72" width="16" height="16" fill="#0F172A"/>
+              <circle cx="50" cy="50" r="8" fill="#2563EB"/>
+              <rect x="42" y="10" width="8" height="20" fill="#0F172A"/>
+              <rect x="10" y="42" width="20" height="8" fill="#0F172A"/>
+              <rect x="50" y="65" width="15" height="15" fill="#0F172A"/>
+              <rect x="70" y="50" width="20" height="10" fill="#0F172A"/>
+              <rect x="75" y="75" width="15" height="15" fill="#0F172A"/>
+            </svg>
+            <div style="text-align: left;">
+              <div style="font-family: monospace; letter-spacing: 5px; font-weight: 700; font-size: 1.15rem; color: var(--text-primary); margin-bottom: 4px;" id="tktBarcodeText">
+                |||| ||| ||||| || ||||||
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-secondary); max-width: 280px;">
+                Show this digital boarding pass at the bus terminal gate during check-in.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions Bar -->
+    <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 64px; flex-wrap: wrap;" class="btn-print">
+      <button onclick="window.print()" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        Print Boarding Pass
+      </button>
+
+      <a href="/passenger/dashboard" class="btn btn-secondary">
+        Go to My Bookings
+      </a>
+
+      <a href="/" class="btn btn-outline">
+        Book Another Trip
+      </a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-bottom">
+      © 2026 RouteWise Inc. All rights reserved. Smart Journeys. Simpler Bookings.
+    </div>
+  </footer>
+
+  <script src="/js/api.js?v=6.0"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(window.location.search);
+      const pnr = params.get('pnr');
+      if (!pnr) {
+        window.location.href = '/';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/bookings/${encodeURIComponent(pnr)}`);
+        if (!res.ok) throw new Error('Booking not found');
+        const data = await res.json();
+        renderTicket(data);
+      } catch (err) {
+        API.showToast(err.message, 'error');
+      }
+    });
+
+    function renderTicket(b) {
+      document.getElementById('tktPnr').innerText = b.pnr;
+      document.getElementById('tktBusName').innerText = `${b.busName} (${b.busNumber}) • ${b.busType}`;
+      document.getElementById('tktFrom').innerText = b.sourceCity;
+      document.getElementById('tktTo').innerText = b.destinationCity;
+      document.getElementById('tktDepTime').innerText = `Departs: ${API.formatTime(b.departureTime)}`;
+      document.getElementById('tktArrTime').innerText = `Expected: ${API.formatTime(b.arrivalTime)}`;
+      document.getElementById('tktDate').innerText = API.formatDate(b.departureTime);
+      document.getElementById('tktSeats').innerText = b.seatNumbers ? b.seatNumbers.join(', ') : 'Assigned';
+      document.getElementById('tktPassenger').innerText = b.passengerName;
+      document.getElementById('tktContact').innerText = `${b.passengerPhone} • ${b.passengerEmail}`;
+      document.getElementById('tktAmount').innerText = API.formatCurrency(b.totalAmount);
+      document.getElementById('tktBarcodeText').innerText = `* ${b.pnr} *`;
+
+      // Set destination photo on ticket banner
+      const destImg = API.getCityImage(b.destinationCity);
+      const imgEl = document.getElementById('tktDestImg');
+      if (imgEl) imgEl.src = destImg;
+    }
+  </script>
+</body>
+</html>
