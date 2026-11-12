@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Passenger Portal — RouteWise</title>
+  <link rel="stylesheet" href="/css/routewise.css?v=6.0">
+  <style>
+    :root {
+      --primary: #2563EB !important;
+      --primary-hover: #1D4ED8 !important;
+      --primary-light: #EFF6FF !important;
+      --primary-border: #BFDBFE !important;
+      --primary-green: #2563EB !important;
+      --primary-green-hover: #1D4ED8 !important;
+      --primary-green-light: #EFF6FF !important;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .routes-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+      gap: 24px !important;
+    }
+
+    .route-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .route-card:hover {
+      border-color: var(--primary-border);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+
+    .route-card-img-wrap {
+      height: 180px !important;
+      min-height: 180px !important;
+      max-height: 180px !important;
+      overflow: hidden !important;
+      position: relative;
+      background-color: #E2E8F0;
+    }
+
+    .route-card-img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      display: block !important;
+      transition: transform 0.5s ease;
+    }
+
+    .route-card:hover .route-card-img {
+      transform: scale(1.05);
+    }
+
+    .route-duration-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .route-card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .route-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .route-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .route-meta {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .route-price-box {
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .route-fare {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .passenger-hero-strip {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 32px 0;
+    }
+
+    .passenger-avatar-box {
+      width: 64px !important;
+      height: 64px !important;
+      min-width: 64px !important;
+      max-height: 64px !important;
+      border-radius: var(--radius-full);
+      overflow: hidden !important;
+      border: 2px solid var(--border-color);
+      flex-shrink: 0;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .passenger-avatar-img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      display: block !important;
+    }
+
+    .table-dest-thumb {
+      width: 36px !important;
+      height: 36px !important;
+      min-width: 36px !important;
+      max-height: 36px !important;
+      border-radius: var(--radius-sm);
+      object-fit: cover !important;
+      margin-right: 10px;
+      vertical-align: middle;
+      border: 1px solid var(--border-color);
+      display: inline-block !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container">
+      <a href="/" class="navbar-brand">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="15" rx="3"></rect>
+          <path d="M4 11h16"></path>
+          <circle cx="7.5" cy="15.5" r="1.5"></circle>
+          <circle cx="16.5" cy="15.5" r="1.5"></circle>
+        </svg>
+        <span>RouteWise</span>
+      </a>
+
+      <nav>
+        <ul class="navbar-nav">
+          <li><a href="/" class="nav-link">Home</a></li>
+          <li><a href="/search?from=Delhi&to=Chandigarh" class="nav-link">Book Tickets</a></li>
+          <li><a href="/routes" class="nav-link">Route Explorer</a></li>
+          <li><a href="/pnr-status" class="nav-link">Check PNR</a></li>
+          <li><a href="/passenger/dashboard" class="nav-link active">My Bookings</a></li>
+        </ul>
+      </nav>
+
+      <div id="navUserSlot" class="nav-user"></div>
+    </div>
+  </header>
+
+  <!-- Passenger Profile Hero -->
+  <section class="passenger-hero-strip">
+    <div class="container anim-slide-up" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+      <div style="display: flex; align-items: center; gap: 18px;">
+        <div class="passenger-avatar-box">
+          <img id="userAvatarImg" src="/images/avatar-rohit.jpg" alt="Avatar" class="passenger-avatar-img">
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <h1 id="userFullName" style="font-size: 1.6rem; font-weight: 800;">Rahul Verma</h1>
+            <span class="badge badge-primary">Verified Passenger</span>
+          </div>
+          <div id="userContactLine" style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 4px;">
+            passenger@routewise.com • +91 98765 43210
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <a href="/search?from=Delhi&to=Chandigarh" class="btn btn-primary">
+          + Book New Journey
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Passenger Bookings List -->
+  <main class="container anim-slide-up" style="padding: 40px 0 64px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+      <h2 style="font-size: 1.35rem; font-weight: 800;">My Journey History</h2>
+      <span id="bookingCountBadge" class="badge badge-sage">Loading trips...</span>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>PNR</th>
+            <th>Route Corridor</th>
+            <th>Journey Date</th>
+            <th>Bus / Coach</th>
+            <th>Seats</th>
+            <th>Total Fare</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="bookingsTableBody">
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+              Loading your bookings...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recommended Travel Corridors (Home page visual card style) -->
+    <div style="margin-top: 48px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <div>
+          <span class="badge badge-primary" style="margin-bottom: 6px;">Top Recommendations</span>
+          <h2 style="font-size: 1.45rem; font-weight: 800; color: var(--text-primary); margin: 0;">
+            Explore Popular Destinations
+          </h2>
+        </div>
+        <a href="/routes" class="btn btn-outline btn-sm">View All Corridors →</a>
+      </div>
+
+      <div class="routes-grid">
+        <div class="route-card">
+          <div class="route-card-img-wrap">
+            <img src="/images/chandigarh.jpg" alt="Chandigarh" class="route-card-img">
+            <span class="route-duration-badge">⏱ 4h 30m</span>
+          </div>
+          <div class="route-card-body">
+            <div class="route-card-top">
+              <h3 class="route-title">Delhi → Chandigarh</h3>
+              <span class="badge badge-primary">Daily 6 Runs</span>
+            </div>
+            <div class="route-meta">📍 245 km • Volvo 9600 Multi-Axle</div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹650</div>
+              </div>
+              <a href="/search?from=Delhi&to=Chandigarh" class="btn btn-primary btn-sm">Book Again →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="route-card">
+          <div class="route-card-img-wrap">
+            <img src="/images/manali.jpg" alt="Manali" class="route-card-img">
+            <span class="route-duration-badge">⏱ 8h 00m</span>
+          </div>
+          <div class="route-card-body">
+            <div class="route-card-top">
+              <h3 class="route-title">Chandigarh → Manali</h3>
+              <span class="badge badge-primary">Overnight</span>
+            </div>
+            <div class="route-meta">📍 305 km • Volvo B11R Luxury</div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹950</div>
+              </div>
+              <a href="/search?from=Chandigarh&to=Manali" class="btn btn-primary btn-sm">Book Now →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="route-card">
+          <div class="route-card-img-wrap">
+            <img src="/images/jaipur.jpg" alt="Jaipur" class="route-card-img">
+            <span class="route-duration-badge">⏱ 5h 10m</span>
+          </div>
+          <div class="route-card-body">
+            <div class="route-card-top">
+              <h3 class="route-title">Delhi → Jaipur</h3>
+              <span class="badge badge-primary">Expressway</span>
+            </div>
+            <div class="route-meta">📍 275 km • Scania / BharatBenz</div>
+            <div class="route-price-box">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Starts from</span>
+                <div class="route-fare">₹550</div>
+              </div>
+              <a href="/search?from=Delhi&to=Jaipur" class="btn btn-primary btn-sm">Book Now →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-bottom">
+      © 2026 RouteWise Inc. All rights reserved. Smart Journeys. Simpler Bookings.
+    </div>
+  </footer>
+
+  <script src="/js/api.js?v=6.0"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = API.getUser();
+      if (!user) {
+        window.location.href = '/login';
+        return;
+      }
+
+      document.getElementById('userFullName').innerText = user.name;
+      document.getElementById('userContactLine').innerText = `${user.email} • ${user.phone || 'Phone not set'}`;
+
+      loadMyBookings();
+    });
+
+    async function loadMyBookings() {
+      const tbody = document.getElementById('bookingsTableBody');
+      const badge = document.getElementById('bookingCountBadge');
+
+      try {
+        const res = await fetch('/api/bookings/my-bookings');
+        if (!res.ok) {
+          if (res.status === 401) {
+            window.location.href = '/login';
+            return;
+          }
+          throw new Error('Failed to load bookings');
+        }
+        const bookings = await res.json();
+        badge.innerText = `${bookings.length} trip(s)`;
+
+        if (bookings.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 48px; color: var(--text-secondary);">
+                You haven't made any bus bookings yet.
+                <div style="margin-top: 12px;">
+                  <a href="/search?from=Delhi&to=Chandigarh" class="btn btn-outline btn-sm">Find Buses Now →</a>
+                </div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = bookings.map(b => {
+          const isCancelled = b.bookingStatus === 'CANCELLED';
+          const destImg = API.getCityImage(b.destinationCity);
+          return `
+            <tr>
+              <td>
+                <span style="font-weight: 700; font-family: monospace; font-size: 0.95rem; color: var(--primary);">
+                  ${b.pnr}
+                </span>
+              </td>
+              <td style="font-weight: 600;">
+                <img src="${destImg}" alt="${b.destinationCity}" class="table-dest-thumb">
+                ${b.sourceCity} → ${b.destinationCity}
+              </td>
+              <td>
+                ${API.formatDate(b.departureTime)}
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">${API.formatTime(b.departureTime)}</div>
+              </td>
+              <td>
+                ${b.busName}
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">${b.busNumber}</div>
+              </td>
+              <td style="font-weight: 700;">${b.seatNumbers ? b.seatNumbers.join(', ') : 'Assigned'}</td>
+              <td style="font-weight: 700;">${API.formatCurrency(b.totalAmount)}</td>
+              <td>
+                <span class="badge ${isCancelled ? 'badge-danger' : 'badge-success'}">
+                  ${b.bookingStatus}
+                </span>
+              </td>
+              <td>
+                <div style="display: flex; gap: 8px;">
+                  <a href="/booking-confirmation?pnr=${b.pnr}" class="btn btn-secondary btn-sm" title="View & Print Ticket">
+                    Ticket
+                  </a>
+                  ${!isCancelled ? `
+                    <button onclick="cancelBooking('${b.pnr}')" class="btn btn-sm" style="background: #FEE2E2; color: #DC2626; border: 1px solid #FECACA;" title="Cancel Booking">
+                      Cancel
+                    </button>
+                  ` : ''}
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" style="color: var(--danger-color); text-align: center;">${err.message}</td></tr>`;
+      }
+    }
+
+    async function cancelBooking(pnr) {
+      if (!confirm(`Are you sure you want to cancel booking ${pnr}? Your seats will be released immediately.`)) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/bookings/${encodeURIComponent(pnr)}/cancel`, { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Cancellation failed');
+
+        API.showToast('Booking cancelled and seats released', 'success');
+        loadMyBookings();
+      } catch (err) {
+        API.showToast(err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

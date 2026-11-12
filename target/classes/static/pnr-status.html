@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check PNR Status & Cancellation — RouteWise</title>
+  <link rel="stylesheet" href="/css/routewise.css?v=6.0">
+  <style>
+    :root {
+      --primary: #2563EB !important;
+      --primary-hover: #1D4ED8 !important;
+      --primary-light: #EFF6FF !important;
+      --primary-border: #BFDBFE !important;
+      --primary-green: #2563EB !important;
+      --primary-green-hover: #1D4ED8 !important;
+      --primary-green-light: #EFF6FF !important;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .pnr-card-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .pnr-dest-img {
+      width: 70px !important;
+      height: 70px !important;
+      min-width: 70px !important;
+      max-height: 70px !important;
+      border-radius: var(--radius-md);
+      object-fit: cover !important;
+      display: block !important;
+      border: 1px solid var(--border-color);
+      flex-shrink: 0;
+      background-color: #E2E8F0;
+    }
+
+    .pnr-steps-tracker {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 24px 0 28px;
+      position: relative;
+    }
+
+    .pnr-steps-tracker::before {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: 30px;
+      right: 30px;
+      height: 2px;
+      background: var(--border-color);
+      z-index: 1;
+    }
+
+    .pnr-step {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pnr-step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+
+    .pnr-step.active .pnr-step-circle {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 0 0 4px var(--primary-light);
+    }
+
+    .pnr-step.done .pnr-step-circle {
+      border-color: var(--success-color);
+      background: var(--success-color);
+      color: #FFFFFF;
+    }
+
+    .pnr-step-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container">
+      <a href="/" class="navbar-brand">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="15" rx="3"></rect>
+          <path d="M4 11h16"></path>
+          <circle cx="7.5" cy="15.5" r="1.5"></circle>
+          <circle cx="16.5" cy="15.5" r="1.5"></circle>
+        </svg>
+        <span>RouteWise</span>
+      </a>
+
+      <nav>
+        <ul class="navbar-nav">
+          <li><a href="/" class="nav-link">Home</a></li>
+          <li><a href="/search?from=Delhi&to=Chandigarh" class="nav-link">Book Tickets</a></li>
+          <li><a href="/routes" class="nav-link">Route Explorer</a></li>
+          <li><a href="/pnr-status" class="nav-link active">Check PNR</a></li>
+          <li><a href="/passenger/dashboard" class="nav-link">My Bookings</a></li>
+        </ul>
+      </nav>
+
+      <div id="navUserSlot" class="nav-user"></div>
+    </div>
+  </header>
+
+  <!-- PNR Search Strip -->
+  <section class="section" style="padding: 56px 0 36px;">
+    <div class="container anim-slide-up" style="max-width: 640px; text-align: center;">
+      <span class="badge badge-primary" style="margin-bottom: 8px;">
+        <span class="pulse-dot"></span> Real-Time Trip Status
+      </span>
+      <h1 style="font-size: 2.2rem; margin-bottom: 8px;">Check PNR Status</h1>
+      <p style="color: var(--text-secondary); margin-bottom: 28px;">
+        Enter your 6-character PNR code to retrieve real-time reservation details, print boarding passes, or manage cancellations.
+      </p>
+
+      <form onsubmit="searchPnr(event)" style="display: flex; gap: 10px;">
+        <input type="text" id="inputPnr" class="form-control" placeholder="e.g. RW-2H43U5" style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; height: 48px;" required>
+        <button type="submit" class="btn btn-primary" style="padding: 0 32px; height: 48px;">Search PNR</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- PNR Details View -->
+  <main class="container" style="max-width: 780px; margin-bottom: 64px;">
+    <div id="pnrResultBox" style="display: none;" class="anim-slide-up">
+      <div class="card" style="margin-bottom: 24px; padding: 0; overflow: hidden; border-radius: var(--radius-xl);">
+
+        <!-- Destination Photography Visual Banner (Home page style) -->
+        <div style="height: 160px; position: relative; overflow: hidden;">
+          <img id="pnrDestImg" src="/images/chandigarh.jpg" alt="Destination View" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.78) 100%); padding: 18px 24px; display: flex; align-items: flex-end; justify-content: space-between; color: #FFFFFF;">
+            <div>
+              <div style="font-size: 0.75rem; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">
+                Booking Reference
+              </div>
+              <div id="resPnr" style="font-size: 1.6rem; font-weight: 800; font-family: monospace; color: #FFFFFF;">
+                RW-XXXXXX
+              </div>
+            </div>
+            <div id="resStatusBadge">
+              <span class="badge" style="background: rgba(37,99,235,0.9); color: #FFF; font-weight: 700; border: none; padding: 6px 14px; font-size: 0.85rem;">CONFIRMED</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 24px;">
+
+        <!-- Progress Tracker -->
+        <div class="pnr-steps-tracker" id="pnrTracker">
+          <div class="pnr-step done">
+            <div class="pnr-step-circle">✓</div>
+            <div class="pnr-step-label">Booked</div>
+          </div>
+          <div class="pnr-step active">
+            <div class="pnr-step-circle">●</div>
+            <div class="pnr-step-label">Confirmed</div>
+          </div>
+          <div class="pnr-step">
+            <div class="pnr-step-circle">3</div>
+            <div class="pnr-step-label">Boarding</div>
+          </div>
+          <div class="pnr-step">
+            <div class="pnr-step-circle">4</div>
+            <div class="pnr-step-label">Completed</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-bottom: 24px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Journey Route</div>
+            <div id="resRoute" style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary); margin-top: 2px;">-- → --</div>
+          </div>
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Journey Date & Time</div>
+            <div id="resDateTime" style="font-weight: 700; font-size: 0.95rem; margin-top: 2px;">--</div>
+          </div>
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Bus & Coach</div>
+            <div id="resBus" style="font-weight: 700; font-size: 0.95rem; margin-top: 2px;">--</div>
+          </div>
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Seat Number(s)</div>
+            <div id="resSeats" style="font-weight: 800; font-size: 1rem; color: var(--primary); margin-top: 2px;">--</div>
+          </div>
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Passenger Name</div>
+            <div id="resPassenger" style="font-weight: 700; font-size: 0.95rem; margin-top: 2px;">--</div>
+          </div>
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Amount Paid</div>
+            <div id="resAmount" style="font-weight: 800; font-size: 1.15rem; color: var(--primary); margin-top: 2px;">₹0</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 20px; flex-wrap: wrap; gap: 12px;">
+          <a id="btnViewTicket" href="#" class="btn btn-primary btn-sm">
+            Print E-Ticket / Boarding Pass
+          </a>
+
+          <button id="btnCancelTicket" onclick="confirmCancelBooking()" class="btn btn-secondary btn-sm" style="color: var(--danger-color); border-color: #FECACA;">
+            Cancel Booking & Request Refund
+          </button>
+        </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-bottom">
+      © 2026 RouteWise Inc. All rights reserved. Smart Journeys. Simpler Bookings.
+    </div>
+  </footer>
+
+  <script src="/js/api.js?v=6.0"></script>
+  <script>
+    let currentBooking = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const pnr = params.get('pnr');
+      if (pnr) {
+        document.getElementById('inputPnr').value = pnr;
+        fetchPnrDetails(pnr);
+      }
+    });
+
+    function searchPnr(e) {
+      e.preventDefault();
+      const pnr = document.getElementById('inputPnr').value.trim();
+      if (!pnr) return;
+      fetchPnrDetails(pnr);
+    }
+
+    async function fetchPnrDetails(pnr) {
+      try {
+        const res = await fetch(`/api/bookings/${encodeURIComponent(pnr)}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'PNR not found');
+        currentBooking = data;
+        renderPnrDetails(data);
+      } catch (err) {
+        API.showToast(err.message, 'error');
+        document.getElementById('pnrResultBox').style.display = 'none';
+      }
+    }
+
+    function renderPnrDetails(b) {
+      document.getElementById('pnrResultBox').style.display = 'block';
+      document.getElementById('resPnr').innerText = b.pnr;
+      document.getElementById('resRoute').innerText = `${b.sourceCity} → ${b.destinationCity}`;
+      document.getElementById('resDateTime').innerText = `${API.formatDate(b.departureTime)} at ${API.formatTime(b.departureTime)}`;
+      document.getElementById('resBus').innerText = `${b.busName} (${b.busNumber})`;
+      document.getElementById('resSeats').innerText = b.seatNumbers && b.seatNumbers.length > 0 ? b.seatNumbers.join(', ') : 'Assigned';
+      document.getElementById('resPassenger').innerText = b.passengerName;
+      document.getElementById('resAmount').innerText = API.formatCurrency(b.totalAmount);
+
+      document.getElementById('pnrDestImg').src = API.getCityImage(b.destinationCity);
+
+      const statusBadge = document.getElementById('resStatusBadge');
+      const btnCancel = document.getElementById('btnCancelTicket');
+      const btnTicket = document.getElementById('btnViewTicket');
+
+      btnTicket.href = `/booking-confirmation?pnr=${b.pnr}`;
+
+      if (b.bookingStatus === 'CANCELLED') {
+        statusBadge.innerHTML = '<span class="badge badge-danger">CANCELLED • REFUNDED</span>';
+        btnCancel.style.display = 'none';
+        document.getElementById('pnrTracker').style.display = 'none';
+      } else {
+        statusBadge.innerHTML = '<span class="badge badge-success">CONFIRMED</span>';
+        btnCancel.style.display = 'inline-flex';
+        document.getElementById('pnrTracker').style.display = 'flex';
+      }
+    }
+
+    async function confirmCancelBooking() {
+      if (!currentBooking) return;
+      if (!confirm(`Are you sure you want to cancel booking ${currentBooking.pnr}? Seats will be released immediately and full refund initiated.`)) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/bookings/${encodeURIComponent(currentBooking.pnr)}/cancel`, {
+          method: 'POST'
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to cancel booking');
+
+        API.showToast('Booking cancelled successfully. Seats released.', 'success');
+        currentBooking = data;
+        renderPnrDetails(data);
+      } catch (err) {
+        API.showToast(err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
