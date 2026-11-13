@@ -120,7 +120,6 @@ RouteWise is a modern, commercial-grade intercity bus ticket booking and highway
 ### Quick Start
 ```bash
 # 1. Navigate to project root
-cd /Users/arman_ansari/.gemini/antigravity/scratch/routewise
 
 # 2. Build the project
 mvn clean package -DskipTests
